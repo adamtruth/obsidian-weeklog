@@ -50,9 +50,10 @@ var FolderSuggest = class extends import_obsidian.AbstractInputSuggest {
   renderSuggestion(folder, el) {
     el.setText(folder.path);
   }
-  selectSuggestion(folder) {
+  selectSuggestion(folder, _evt) {
     this.setValue(folder.path);
-    this.inputEl.dispatchEvent(new Event("input"));
+    this.inputEl.focus();
+    this.inputEl.trigger("input");
     this.close();
   }
 };
@@ -67,9 +68,10 @@ var FileSuggest = class extends import_obsidian.AbstractInputSuggest {
   renderSuggestion(file, el) {
     el.setText(file.path);
   }
-  selectSuggestion(file) {
+  selectSuggestion(file, _evt) {
     this.setValue(file.path);
-    this.inputEl.dispatchEvent(new Event("input"));
+    this.inputEl.focus();
+    this.inputEl.trigger("input");
     this.close();
   }
 };
@@ -223,7 +225,7 @@ var WeeklogSettingTab = class extends import_obsidian.PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
     containerEl.createEl("h2", { text: "Weeklog Settings" });
-    new import_obsidian.Setting(containerEl).setName("Weeklog folder").setDesc("New weeklog notes are created here. Leave blank for vault root.").addSearch((search) => {
+    new import_obsidian.Setting(containerEl).setName("Weeklogs directory").setDesc("New weeklog notes are created in this directory. Leave blank for the vault root.").addSearch((search) => {
       search.setPlaceholder("e.g. Weeklog").setValue(this.plugin.settings.folder);
       new FolderSuggest(this.app, search.inputEl);
       search.onChange(async (value) => {
@@ -231,7 +233,7 @@ var WeeklogSettingTab = class extends import_obsidian.PluginSettingTab {
         await this.plugin.saveSettings();
       });
     });
-    new import_obsidian.Setting(containerEl).setName("Index note").setDesc("(Optional) Note containing linked Weeklog notes. Will be created if it does not exist.").addSearch((search) => {
+    new import_obsidian.Setting(containerEl).setName("Index file").setDesc("(Optional) File containing linked Weeklog notes. It will be created if it does not exist.").addSearch((search) => {
       search.setPlaceholder("e.g. Weeklogs.md").setValue(this.plugin.settings.indexNotePath);
       new FileSuggest(this.app, search.inputEl);
       search.onChange(async (value) => {

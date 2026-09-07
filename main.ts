@@ -56,9 +56,10 @@ class FolderSuggest extends AbstractInputSuggest<TFolder> {
   renderSuggestion(folder: TFolder, el: HTMLElement): void {
     el.setText(folder.path);
   }
-  selectSuggestion(folder: TFolder): void {
+  selectSuggestion(folder: TFolder, _evt: MouseEvent | KeyboardEvent): void {
     this.setValue(folder.path);
-    this.inputEl.dispatchEvent(new Event("input"));
+    this.inputEl.focus();
+    this.inputEl.trigger("input");
     this.close();
   }
 }
@@ -78,9 +79,10 @@ class FileSuggest extends AbstractInputSuggest<TFile> {
   renderSuggestion(file: TFile, el: HTMLElement): void {
     el.setText(file.path);
   }
-  selectSuggestion(file: TFile): void {
+  selectSuggestion(file: TFile, _evt: MouseEvent | KeyboardEvent): void {
     this.setValue(file.path);
-    this.inputEl.dispatchEvent(new Event("input"));
+    this.inputEl.focus();
+    this.inputEl.trigger("input");
     this.close();
   }
 }
@@ -275,6 +277,7 @@ export default class WeeklogPlugin extends Plugin {
   }
 }
 
+/* Weeklog User Settings */
 class WeeklogSettingTab extends PluginSettingTab {
   plugin: WeeklogPlugin;
 
@@ -288,11 +291,12 @@ class WeeklogSettingTab extends PluginSettingTab {
     containerEl.empty();
     containerEl.createEl("h2", { text: "Weeklog Settings" });
 
+    // Specify the directory for weeklogs to be created in
     new Setting(containerEl)
-      .setName("Weeklog folder")
-      .setDesc("New weeklog notes are created here. Leave blank for vault root.")
+      .setName("Weeklog Directory")
+      .setDesc("Specify the directory to create your weeklogs in. Leave blank for vault root.")
       .addSearch((search) => {
-        search.setPlaceholder("e.g. Weeklog").setValue(this.plugin.settings.folder);
+        search.setPlaceholder("e.g. Weeklogs/").setValue(this.plugin.settings.folder);
         new FolderSuggest(this.app, search.inputEl);
         search.onChange(async (value) => {
           this.plugin.settings.folder = value.trim();
@@ -300,9 +304,10 @@ class WeeklogSettingTab extends PluginSettingTab {
         });
       });
 
+    // Index file to track the previous weeklog files
     new Setting(containerEl)
-      .setName("Index note")
-      .setDesc("(Optional) Note containing linked Weeklog notes. Will be created if it does not exist.")
+      .setName("Index File")
+      .setDesc("(Optional) An index note containing linked Weeklog notes. Will be created if it does not exist.")
       .addSearch((search) => {
         search.setPlaceholder("e.g. Weeklogs.md").setValue(this.plugin.settings.indexNotePath);
         new FileSuggest(this.app, search.inputEl);
@@ -379,6 +384,5 @@ class WeeklogSettingTab extends PluginSettingTab {
           });
         });
     });
-
   }
 }
